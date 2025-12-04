@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>matanorya - תערוכת אהבה לאור</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #A34E7B; /* ורוד עמוק / יין */
+            --secondary-color: #F8E7E4; /* קרם בהיר / לבן שבור */
+            --text-color: #333;
+            --light-bg: #FFFBFB; 
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --transition-time: 0.5s;
+        }
+
+        body {
+            font-family: 'Varela Round', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.8;
+            direction: rtl;
+            text-align: right;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            overflow-y: auto; /* גלילה זמינה – נדאג להתאים אלמנטים כך שלא נזדקק לה במסכי הנרטיב */
+        }
+        
+        h1, .royal-title, .final-nav-list a {
+            font-family: 'Secular One', cursive; 
+            color: var(--primary-color);
+            letter-spacing: 2px;
+        }
+        
+        h1 { font-size: 5rem; text-align: center; margin: 50px 0; }
+        .royal-title { font-size: 3rem; text-align: center; margin: 30px 0; }
+        
+        /* --- מבנה המסכים --- */
+        .app-screen {
+            display: none; 
+            min-height: 100vh;
+            width: 100vw;
+            padding: 60px 5% 16px 5%; /* פחות padding כך שהכל ייכנס */
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: var(--secondary-color);
+            transition: opacity var(--transition-time);
+            box-sizing: border-box;
+            justify-content: flex-start; /* מתחיל מלמעלה */
+        }
+        
+        #screen-1 { display: flex; } 
+        #final-content { display: none; }
+        
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: transparent; /* שקוף שלא יסתיר טקסט */
+            box-shadow: none; /* ללא צל */
+            z-index: 2000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .top-bar button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+        }
+        
+        .screen-text {
+            max-width: 800px;
+            font-size: 2.1rem; /* הוכפל הגודל למסכי הנרטיב */
+            line-height: 1.6;
+            margin: 10px 0 14px 0;
+            font-weight: 700; /* מודגש */
+            white-space: pre-line; /* ENTER בקוד = שורה חדשה */
+        }
+
+        .screen-buttons {
+            margin-top: 6px;
+        }
+
+        .screen-buttons button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 8px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: var(--shadow);
+        }
+
+        /* --- קרוסלה פשוטה --- */
+        .carousel-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            margin: 15px auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* האובייקט המרכזי */
+        .carousel-main-item {
+            width: 100%;
+            max-width: 85vw;
+            max-height: 55vh; /* תצוגה מקדימה מוקטנת שמתאימה גם ל-LANDSCAPE וגם ל-PORTRAIT */
+            margin: 0 auto;
+            position: relative;
+            display: none;
+            cursor: pointer;
+        }
+        
+        .carousel-main-item.active {
+            display: block;
+        }
+        
+        .carousel-main-content {
+            width: 100%;
+            height: 40vh;
+            max-height: 40vh;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            background-color: #fff;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .carousel-main-content img {
+            max-width: 85vw;
+            max-height: 40vh;
+            width: auto;
+            height: auto;
+            object-fit: contain; /* מציג את כל התמונה בלי חיתוך */
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-main-content {
+                height: 35vh;
+                max-height: 35vh;
+            }
+            .carousel-main-content img {
+                max-height: 35vh;
+                max-width: 90vw;
+            }
+        }
+        
+        .carousel-main-blessing {
+            width: 100%;
+            max-height: 40vh; /* נמוך יותר כדי לפנות מקום לכפתורים */
+            padding: 24px;
+            text-align: right;
+            overflow: hidden; 
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .carousel-main-blessing .blessing-date {
+            font-size: 1.2rem; /* חזרה לגודל נוח */
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--primary-color);
+        }
+
+        .carousel-main-blessing .blessing-text {
+            font-size: 1rem; /* חזרה לגודל נורמלי */
+            line-height: 1.7;
+            overflow: hidden;
+            position: relative;
+            max-height: 20vh; /* טקסט תצוגה מקדימה – קצר כדי שתמיד תהיה חיתוך */
+            padding-bottom: 1.6em; /* מקום ל... שלא יכסו שורה שלמה */
+            white-space: pre-line; /* ENTER בקוד = שורה חדשה גם בברכות */
+        }
+
+        /* אפקט שלוש נקודות / fade-out בתחתית הטקסט המוקטן */
+        .carousel-main-blessing .blessing-text::after {
+            content: '...';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            text-align: center;
+            padding-bottom: 0.2em;
+            background: linear-gradient(to top, white 65%, rgba(255,255,255,0) 100%);
+        }
+        
+        /* חיצי ניווט */
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(163, 78, 123, 0.8);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .carousel-arrow:hover {
+            background: rgba(163, 78, 123, 1);
+        }
+        
+        .carousel-arrow.prev {
+            right: -25px;
+        }
+        
+        .carousel-arrow.next {
+            left: -25px;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            .carousel-arrow.prev {
+                right: -20px;
+            }
+            .carousel-arrow.next {
+                left: -20px;
+            }
+        }
+        
+        /* שורת thumbnails */
+        .thumbnails {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+            max-width: 100%;
+            padding: 10px 0;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .thumbnails::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .thumbnails::-webkit-scrollbar-track {
+            background: var(--secondary-color);
+            border-radius: 3px;
+        }
+        
+        .thumbnails::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .thumbnail-item {
+            min-width: 80px;
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s, transform 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .thumbnail-item:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .thumbnail-item.active {
+            opacity: 1;
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        
+        .thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .thumbnail-item.blessing-thumb {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 5px;
+            color: var(--primary-color);
+        }
+
+        /* התאמות ייעודיות לדסקטופ – קצת יותר צפוף כדי שהכפתורים תמיד ייכנסו */
+        @media (min-width: 1024px) {
+            .app-screen {
+                padding: 60px 10% 16px 10%;
+            }
+            .screen-text {
+                font-size: 0.95rem;
+                line-height: 1.4;
+                margin: 6px 0 10px 0;
+            }
+            .royal-title {
+                font-size: 2.4rem;
+                margin: 18px 0;
+            }
+            .carousel-main-content {
+                height: 38vh;
+                max-height: 38vh;
+            }
+            .carousel-main-content img {
+                max-height: 38vh;
+                max-width: 70vw;
+            }
+        }
+        
+        .blessing-text {
+            white-space: pre-wrap;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            font-style: italic;
+            max-height: 200px; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- Modal/Lightbox (תצוגה בגודל מלא) --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 3000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; /* גלילה כאשר התוכן גדול מהמסך */
+            background-color: rgba(0, 0, 0, 0.95); 
+            justify-content: center; 
+            align-items: center; 
+            flex-direction: column; 
+        }
+        .modal-content-wrapper { 
+            position: relative; 
+            width: 90%; 
+            height: 90%; 
+            max-height: 90vh;
+            overflow: auto; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background-color: white; 
+            border-radius: 10px; 
+            margin: auto;
+        }
+        .modal-image { 
+            max-width: 95vw; 
+            max-height: 95vh; 
+            width: auto;
+            height: auto;
+            object-fit: contain; 
+            cursor: grab; 
+            transition: transform 0.3s ease;
+        }
+        .modal-blessing { 
+            padding: 32px; 
+            color: var(--text-color); 
+            max-width: 900px; 
+            text-align: right; 
+            white-space: pre-wrap; 
+        }
+        .modal-blessing .blessing-date {
+            font-size: 1.6rem; /* גודל נוח לקריאה */
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--primary-color);
+        }
+        .modal-blessing .blessing-text { 
+            max-height: none; 
+            overflow: visible;
+            font-size: 1.05rem; /* חזרה לגודל רגיל */
+            line-height: 1.9;
+            font-weight: 400;
+            white-space: pre-line; /* ENTER בקוד = שורה חדשה */
+        }
+        .close-btn { position: absolute; top: 15px; right: 25px; color: #fff; font-size: 30px; font-weight: bold; cursor: pointer; text-shadow: 0 0 10px #000; z-index: 3001; }
+        .modal-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 20px 15px; cursor: pointer; font-size: 2rem; z-index: 3002; }
+        #modal-prev { left: 0; border-radius: 0 5px 5px 0; }
+        #modal-next { right: 0; border-radius: 5px 0 0 5px; }
+
+        /* --- מסך ניווט (המבורגר) --- */
+        #nav-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--secondary-color); z-index: 2500; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-top: 60px; }
+        .final-nav-list { 
+            list-style: none; 
+            padding: 0; 
+            margin: 40px auto; 
+            max-width: 800px; 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); /* שני כפתורים בכל שורה */
+            gap: 20px; 
+        }
+        .final-nav-list li { 
+            margin: 0; 
+        }
+        .final-nav-list a { 
+            text-decoration: none; 
+            font-size: 1.5rem; 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            display: block; 
+            transition: background-color 0.2s; 
+            text-align: center;
+        }
+        .final-nav-list a:hover { 
+            background-color: var(--primary-color); 
+            color: white; 
+        }
+        
+        @media (max-width: 600px) {
+            .final-nav-list {
+                grid-template-columns: 1fr; /* שורה אחת בטלפון */
+            }
+        }
+
+        /* גלילה חופשית לאחר חשיפה */
+        .scrolled-content { padding: 60px 5%; margin: 0 auto; max-width: 1000px; text-align: center; }
+        .image-gallery-scrolled img { max-width: 100%; height: auto; border-radius: 10px; margin: 10px; box-shadow: var(--shadow); }
+        .blessing-card-scrolled { padding: 40px; background: white; box-shadow: var(--shadow); border-radius: 10px; margin-bottom: 20px; text-align: right; }
+        .blessing-card-scrolled .blessing-date { font-size: 1.35rem; font-weight: 700; color: var(--primary-color); margin-bottom: 10px; }
+        .blessing-card-scrolled .blessing-text { font-size: 1.05rem; line-height: 1.8; font-weight: 400; white-space: pre-line; }
+    </style>
+</head>
+<body>
+
+    <div id="myModal" class="modal">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <button id="modal-prev" class="modal-nav-btn" onclick="modalPrev()"><i class="fas fa-chevron-right"></i></button>
+        <button id="modal-next" class="modal-nav-btn" onclick="modalNext()"><i class="fas fa-chevron-left"></i></button>
+        <div id="modal-content-wrapper" class="modal-content-wrapper"></div>
+    </div>
+    
+    <div id="nav-menu">
+        <h2 class="royal-title">מבט על - ניווט מהיר</h2>
+        <ul id="nav-list" class="final-nav-list"></ul>
+    </div>
+    
+    <div id="top-bar" class="top-bar" style="display: none;">
+        <button onclick="prevScreen()"><i class="fas fa-arrow-right"></i></button>
+        <span id="screen-title" class="royal-title" style="font-size: 1.5rem; margin: 0; display: none;"></span>
+        <button onclick="toggleNavMenu()"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <div id="app-container">
+        
+        <div id="screen-1" class="app-screen">
+            <p class="screen-text">
+                אהבת חיי, היפה בנשים, אהובת נפשי יפת התואר,
+                פלא מהלך שעשה את הבלתי יאומן, פעמיים,
+                מזל טוב מלא באהבת אמת ושמחה גדולה והודיה ענקית עלייך,
+                עלינו ועל הלל וארייה ופומה שלנו, 
+                או בקיצור, פומתנאורהללארייה - היצירה הכי טובה שלנו.
+                הכל כאן מוקדש לך בהוקרה ואהבה עצומה ואדירה כל כך 
+                שמצליחה להכיל בה את העולם כולו ויותר.
+            </p>
+            <div class="screen-buttons">
+                <button onclick="nextScreen()">לכניסה לעולם</button>
+            </div>
+        </div>
+        
+    </div>
+    
+    <div id="final-content">
+        
+        <div class="scrolled-content">
+            <h1 style="font-size: 3rem;">matanorya</h1>
+            <h2 class="royal-title" id="final-nav-anchor">מבט על</h2>
+            <p class="screen-text">לחצו על כותרת המקטע כדי לעבור אליו במהירות. תוכלו גם לגלול בחופשיות בדף.</p>
+        </div>
+        
+    </div>
+    
+    <script>
+        let currentScreen = 1;
+        const totalNarrativeScreens = 7;
+        let modalContent = {}; 
+        
+        const blessingData = [
+            { date: '23.12.2013', text: 'אהובתי, אין עולם יפה מהעולם שאני חווה כשאנחנו יחד בשילוב שלנו.. בהרמוניה המענגת שיש לנו לעתים קרובות ורחוקות לפי תקופות מסוימות. כדי שיהיו לנו עוד והרבה מרגעי הזרימה והנעימה האלו, אני חושב שכדאי שנתיר קשרים, נשטח משקעים כמו שאומרים נפזר עננים, בשקט עדין כמו שיודעין, אנחנו. דיבור שבו אני לא אתלהם ואתעצבן ואת לא תעשי את החלק שנוח ופשוט וקל לך לעשות.. וככה נאפשר הבנה הסכמה אהבה ועוד הרבה דברים שעתידים להיות. אני אוהב אותך חבצלת השרון שלי', img: 'matanorya1.jpg' },
+            { date: '14.12.2015', text: 'אור יקירתי, התבקשתי לכתוב לך על ידך אך לא בשיר, וגם לא חמשיר. לפיכך בחרוזים אכתוב, בחרוזים. או שמא בדימויים אשתמש? כשמש מפיחה חיים בשממה.. כרוח מניפה אבקנים בחיקה.. כמו אש שמחה בשדה קוצים.. כמו איש מיחם עם שני חצים? לא טוב דימויים, צריך משהו אישי, פשוט, מהלב. טוב, שלוש וחצי שנים יש אנחנו, קצת רוסי אבל נכון. יש אנחנו כמו שיש הרבה יחסים אחרים ודברים אחרים בעולם. אצלנו קיימת אהבה ענקית ונדירה מאין כמוה וכמובן שבקבלת אהבה כזאת לידיים שלנו הציפייה היא שתקבלי הצעה מסודרת ונתחתן כמו כולם. אבל אנחנו לא כולם, אנחנו מיוחדים כי אין כמונו, וזה נכון, אין כמונו. ואין כמו התקשורת בינינו. מנקודת מבטי, חתונה היא פורמלית, כדי לחגוג, כדי שאת תקבלי את שתרצי. ולכן מבחינתי העתיד שלנו ביחד כבר התחיל לפני שלוש וחצי שנים את נכנסת לחיי בנקודה הכי נכונה קוסמית שיכולה להיות. כמו טל של בוקר על צמח חדש את הגעת אליי, תחושת חיים, הרגשתי חי יותר מאי פעם. את, עם כל היופי שבך, את הדבר הכי טוב שקרה לי. אני מאושר, אני מאושר לראות אותך צומחת וגדלה לצדי ואין עשיר ממני להיות בן הזוג שלך. פעם ציירנו שני עיגולים, לאחד קראנו בשמך, לשני בשלי. הם חפפו מעט, ולשטח המשותף קראנו אור + מתן. במהלך הימים, שבועות וזמנים שעברו השטח המשותף שלנו התרחב והצטמצם, התאזן ואיבד שיווי משקל אך עם כל הטלטלות שעברו עלינו השטח שלנו תמיד נשאר שלנו. מי ייתן ונאריך ימים ביחד והשטח המשותף שלנו יתרחב ויתעצב ביחד עם השטחים הפרטיים שלנו שיעשו את דרכם המבורכת.', img: 'matanorya8.jpg' },
+            { date: '14.6.2017', text: 'אורלי שלי, מאירה את דרכי. אורה היא לי, כמו הזוהר הצפוני, על קרחוני הקוטב - שנמסו למים מאהבתה. גם לא התראינו בימים, ולא התחברנו בלילות, אך אורך המלטף העוצמתי - מתפשט מליבי לשאר איברי גופי, בכל שעות היממה. עד כדי כך יציבה היא האנרגיה שלך, והחיבור שלנו מחזיק מסוף השבוע בים, עד השבוע הזה. ולמרות זאת, ואף על פי כן, לעיתים זה קשה. להיות לבד בימים ובלילות. כל כך קשה עד שלפעמים אני בורח לדמיונות בהקיץ, ורואה את שנינו מסתכלים אל אופק אוקינוסי אינסופי, עם הרגליים בחול הלבן והפריך, מפלחים בדמיוננו את האוקינוס, מהמים הטורקיז ליד החוף ועד הכחול העמוק שבלב. והנה עיניים נעצמות, ומכתב שהחל כשירון והתפתח לסיפורון ולמכתב. אני אוהב אותך מאוד אור יקירתי. ואני שמח מאין כמוני שנפלת בחיקי. ושמח ביותר שנפלתי אני בחיקך שלך. לילה טוב לי, צהריים טובים לך, ותשמרי טוב על החיק שלך, כי בתשע כשאת מסיימת את היום, אני אתכרבל שם מעט. אוהב, מתן.', img: 'matanorya5.jpg' },
+            { date: '21.8.2017', text: 'אור אהובתי הנצחית, הנה הגענו לתל אביב וזה זמן להודות לך, תודה על יום הולדת כל כך טוב, הרבה יותר מספק משתיארתי לי, הרבה יותר מענג משחשבתי שיהיה, ואת, את השמחה שלי, האור שמאיר לי את דרכי, האור שלך אליו אני מסתכל כשאני רוצה להיפתח, אלייך אני ערג וכוסף ומייחל כל לילה כשאת במיטה, והאושר העילאי שאני מרגיש כשאני מתעורר ליופייך, שווה כל מהמורה, מעכב בהמות ופס האטה בדרכנו. תודה לך על ההשקעה והאהבה הפיזית והרוחנית האינסופית שאת מעניקה לי. הלוואי ונמשיך לשחות ולהשתכשך בבריכות האהבה שלנו בשלווה ובהרמוניה אינסופית. עכשיו תעצמי את העיניים ותדמייני את המקום הכי חמים ונעים שאת יכולה לחשוב עליו, מה שבא לך - הג׳קוזי! (עד לפעם הבאה) אני אוהב אותך בכל 248 איברי גופי האוהב. מתן שלך.', img: 'or42.jpg' },
+            { date: '21.9.2018 - ברכת החתונה שלכם', text: 'הרבה דברים למדתי מהסרטים שגדלתי עליהם, כמו שאפשר להדליק גפרור על סוליה של נעל, או שאנשים עם מגבעת מגיעים לרוב עם כרכרה, אבל השיעור החשוב מכולם הוא שיעור על אהבת אמת. הדבר הכי עוצמתי ומלא בקסם שקיים. אהבת אמת היא המנוע של היקום והקיום כולו, היא יוצרת את החיים והיא המשמעות של אותם חיים. ביום שבו מצאנו אחד את השניה, הרגשתי כמו מן תחושת התרחבות אצלי בנשימה, אז לא ידעתי מה התחושה הזו אומרת לי, רק הרגשתי אותה, ובזרימה טבעית התחלנו את הדרך שלנו ביחד. היום אני יודע, כמו ההתרחבות שמים מרגישים כשזורמים אליהם עוד מים, ככה מרגישה אהבת אמת. היא עונה למילה אחת, זו שהכי נכונה לה: כרצונך. ואני באמת מרגיש את זה, שכל מה שאני רוצה, זה שיהיה לך הכי טוב שיש ובדיוק כמו שאת רוצה. אור שלי, אורלי, אורה מלכת אנגליה ונסיכת מצרים, איך אפשר לתאר במילים את כל מה שיש בנינו, את כל הרגעים שחווינו, את כל הטיולים וההרפתקאות, שבפנים ובחוץ. אנחנו כבר משפחה, שנינו יודעים את זה. ואני מרגיש שהבטחנו זה לזו את הכל שלנו מזמן וכל הזמן. ועדיין, אני כל כך שמח להיות פה איתך בחופה שלנו בים, ומרגיש בר מזל שאני מרים את העיניים מהדף הזה ורואה אותך. החכמה וטובת הלב שמלמדת אותי כל יום על העולם ועל עצמי, שתמיד מצחיקה אותי, תמיד מבינה אותי, ותמיד טובה לי, הכי יפה בעולם, עם חיוך שיש בו הכוח להמיס אותי ואת כל העולם סביבי, את המצפן שלי, הבית שלי, והחופש שלי להיות אני. תודה על הדרך שעברנו יחד, ותודה על כל מה שנעבור. אני אוהב אותך, וכל כך בטוח לומר לך שאני - כרצונך. לעולמים.', img: 'or64.jpg' },
+            { date: '27.4.2020', text: 'שושנת המעמקים שלי את זוכרת את המשחק ההוא מהיסודי שבע דקות בגן עדן? תחליפי שבע דקות בשבע שנים ויש לך את החיים שלי איתך. שבע שנים בגן עדן גן עדן שבו החיוך הכי יפה בעולם מופנה אליי, מקום בו השפתיים הכי רכות שצוירו ביד הבריאה הן רק שלי לנשק, ממלכה עצומה ורחבת נופים וצבעים פותחי נשמה שכל כולה בית מפתח ומצמיח חיים ואהבה, בית שאני מבטיח לשמור ולהעשיר בכל טוב, עבורך אהובתי וכרצונך, עבור הלל שלנו, עבור פומה, עבור פומתנאוהלליה ומתנאוריה שתמשיך ותגדל ותכיל את כל מה שנולד ממנה, ועבורי. כי זכיתי בדבר הכי טוב בעולם - את. תודה לילה טוב', img: 'healel5.jpg' },
+            { date: '21.6.2020', text: 'אהובתי האינסופית, שושנת מעמקי הבריאה, פרח הקיום שלי, אורה, זה פתק ראשון מאז שילדת את בני בכורי אהובי. אריה שלנו שגידלת אצלך בגוף באהבה אין קץ, הוא היום הלל שלנו שישן בשלווה וביטחון לידנו. אז אני כותב לך פתק, ושוב, אחרי כל מה שעברנו יחד, אין מילים טובות יותר מאשר לומר לך, אני אוהב אותך. כל כך אוהב אותך, שהחלקיקים הכי אטומיים שלי יודעים את זה. בקוונטים שלי אני אוהב אותך, ברווח שבין לבין אני אוהב אותך. תודה לך אהובת ליבי, משלימת נשמתי, הענקת לי את כל הטוב שיש לעולם להציע, וכל יום את מעניקה לי עוד. אז תודה :) | (: אני נרדם כרגע, לילה טוב ליל מנוחה חלומות פז נסיכה שלי אלת כל היופי אלת כל החכמה את אור צרוף ומזוקק כל השאר זה שטויות וזה חולף. את, והלל ופומה, אתם אור צרוף ומזוקק. טוב עכשיו באמת נרדם.', img: 'healel19.jpg' },
+            { date: '14.12.2025 - ליום הולדתך', text: 'אור אהובתי, פלא מהלך שלי, מזל טוב ליום ההולדת הזה בו את מגשימה חלומות, יום הולדת בו את גם וגם וגם וגם כמו שרצית וכמו שאני אוהב גם. שחקנית מחזאית במאית מורה ליוגה. ולא על הדרך. כל טייטל עם השקעה אינסופית ומחויבות אדירה. ורק עכשיו הגעתי לאמא שאת. משענת וכרבולית עבור הלל. מזנון ועוד המון עבור ארייה. אוהבת אהבה ללא תנאי בדיוק כמו שכתוב בספרים. ועכשיו הגעתי לאישה שאת. לבת זוג. העוגן של חיי שמתרחב לי הלב כל בוקר וכל לילה ובכל יום ורגע בו אני מתבונן ביופי הפנים שלך, בעיניים הטובות שלך שמכירות אותי כל כך טוב ובשפתיים שלך, המצויירות בעיפרון של קסם. את האמא הכי מסורה ומתוקה שיכולתי לבקש לילדיי את האישה הכי טובה ותומכת שיכולתי לבקש עבורי את השותפה הכי מקצוענית ומעמיקה שיכולתי לבקש ליצירה שלי תודה שבחרת בי ואני מאושר שבחרתי בך לעוד הרבה שנים טובות ומצחיקות ובריאות ועמוקות ואמיתיות וכנות של חברות ואהבה עמוקה בהתפתחות מתמדת ואינסופית אוהב אותך ושלך תמיד, מתן', img: 'aria19.jpg' }
+        ];
+        
+        // הפיכת blessingData לנגיש ב-window עבור openModal
+        window.blessingData = blessingData;
+
+        const screensData = [
+            null, 
+            { id: 'screen-2', title: 'מתנאוריה', text: 'הכל מתחיל עם זוג הפכים תאומים נפגשים ונהפכים לאחד שהוא שניים שהם אחת שהיא שתיים.', nextBtn: 'לשדרוג העולם', prefix: 'matanorya', count: 22, anchor: 'anchor-2' },
+            { id: 'screen-3', title: 'פומתנאוריה', text: 'מגיעה פומה והזוגיות מקבלת מענה סופי לצד הכלבי שלה עם הערוץ החדש שנקרא', nextBtn: 'לשדרוג העולם', prefix: 'puma', count: 9, anchor: 'anchor-3' },
+            { id: 'screen-4', title: 'פומתנאורהלליה', text: 'הו... אוה... אחחחח איזה רגע… הרגע הזה בו השדרוג הנפלא ביותר מעיף את הכל לקצב מסחרר של התפתחות והתעצמות והתרחבות המנעד הרגשי השכלי הפיזי התודעתי, אין כמו הלל. ילד מלך אדיר ורגיש וחזק.', nextBtn: 'לשדרוג העולם', prefix: 'healel', count: 44, anchor: 'anchor-4' },
+            { id: 'screen-5', title: 'פומתנאורהללארייה', text: 'נוחתת דובשנייה שאין שניה לה, ארייה החלומית, המתוקה בתבל עם החיוך היפה בגלקסיה ומביאה הכל הישר אל הממלכה הטובה והיפה והמיטיבה ביותר בה אנו חיים.', nextBtn: 'אל המקור', prefix: 'aria', count: 26, anchor: 'anchor-5' },
+            { id: 'screen-6', title: 'המקור', text: 'אז אמרנו שהכל מתחיל עם זוג וזה נכון אבל אין זוג בלי האחת והיא את. אור אורה אורלי אורקה אורקלי אורמה אורנה אורסולה סוכר ז\'ופה ג\'בטה סוכרת. את הסיבה שלשמה ולכבודה נכתב כל הקוד הזה. כל העולם הזה. את. המקור.', nextBtn: 'אל הכתובים', prefix: 'or', count: 72, anchor: 'anchor-6' },
+            { id: 'screen-7', title: 'הכתובים', text: 'כתבתי לך, כותב לך, אכתוב לך בסופו של יום וגם בתחילתו איש המילה אני כאן יש שמונה ברכות מתקופות שונות שמונה כולל ברכת ההווה.', nextBtn: 'למבט על', isBlessing: true, anchor: 'anchor-7' }
+        ];
+
+        // --- בניית HTML דינמית (מסכים 2-7) ---
+        function buildNarrativeScreens() {
+            const container = document.getElementById('app-container');
+            const finalContent = document.getElementById('final-content');
+            const navList = document.getElementById('nav-list');
+            
+            for (let i = 2; i <= totalNarrativeScreens; i++) {
+                const data = screensData[i-1];
+                
+                // יצירת תוכן המסך (למצב נרטיב)
+                const screenHTML = createScreenHTML(data, i);
+                container.insertAdjacentHTML('beforeend', screenHTML);
+                
+                // יצירת תוכן הגלילה (למצב סופי)
+                const scrollHTML = createScrollContentHTML(data);
+                finalContent.insertAdjacentHTML('beforeend', scrollHTML);
+                
+                // יצירת כפתור ניווט מהיר
+                 const navItem = document.createElement('li');
+                 const navLink = document.createElement('a');
+                 navLink.className = 'royal-title';
+                 navLink.textContent = data.title;
+                 navLink.onclick = () => navigateToScreen(i);
+                 navItem.appendChild(navLink);
+                 navList.appendChild(navItem);
+            }
+        }
+
+        function createScreenHTML(data, screenNum) {
+            const isBlessing = data.isBlessing;
+            const carouselId = `carousel-${screenNum}`;
+            
+            let items = isBlessing ? blessingData : Array.from({ length: data.count }, (_, j) => ({ 
+                img: `${data.prefix}${j + 1}`, // בלי סיומת – ננסה jpg ואז png
+                alt: `${data.prefix} ${j + 1}` 
+            }));
+
+            // יצירת האובייקטים המרכזיים
+            let mainItemsHTML = '';
+            items.forEach((item, index) => {
+                if (isBlessing) {
+                    mainItemsHTML += `
+                        <div class="carousel-main-item" data-index="${index}" ${index === 0 ? 'style="display: block;"' : ''}>
+                            <div class="carousel-main-blessing">
+                                <span class="blessing-date">${item.date}</span>
+                                <div class="blessing-text">${item.text}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const imgBase = item.img || `${data.prefix}${index + 1}`;
+                    mainItemsHTML += `
+                        <div class="carousel-main-item ${index === 0 ? 'active' : ''}" data-index="${index}" ${index === 0 ? 'style="display: block;"' : ''}>
+                            <div class="carousel-main-content">
+                                <img src="images/${imgBase}.jpg" 
+                                     data-alt-src="images/${imgBase}.png"
+                                     alt="${item.alt}" 
+                                     data-index="${index}"
+                                     onerror="this.onerror=null; this.src=this.getAttribute('data-alt-src');">
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            return `
+                <div id="${data.id}" class="app-screen" style="display: none;">
+                    <p class="screen-text">${data.text}</p>
+                    <h2 class="royal-title">${data.title}</h2>
+                    <div class="carousel-wrapper" id="${carouselId}-wrapper">
+                        <button class="carousel-arrow prev" onclick="carouselPrev('${carouselId}')">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="carousel-arrow next" onclick="carouselNext('${carouselId}')">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div id="${carouselId}-main">
+                            ${mainItemsHTML}
+                        </div>
+                        <div id="thumbnails-${screenNum}" class="thumbnails"></div>
+                    </div>
+                    <div class="screen-buttons">
+                        <button onclick="prevScreen()">הקודם</button>
+                        <button onclick="${screenNum === totalNarrativeScreens ? 'showFinalContent()' : 'nextScreen()'}">${data.nextBtn}</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createScrollContentHTML(data) {
+            const isBlessing = data.isBlessing;
+            let contentHTML = '';
+            
+            if (isBlessing) {
+                let blessingsScrollHTML = '';
+                blessingData.forEach(item => {
+                    blessingsScrollHTML += `
+                        <div class="blessing-card-scrolled">
+                            <span class="blessing-date">${item.date}</span>
+                            <div class="blessing-text" style="max-height: none; overflow: visible;">${item.text}</div>
+                        </div>
+                    `;
+                });
+                contentHTML = `<div class="blessing-carousel-scrolled">${blessingsScrollHTML}</div>`;
+                
+            } else {
+                 let imagesScrollHTML = '';
+                 for (let j = 1; j <= data.count; j++) {
+                    const imgPath = `images/${data.prefix}${j}.jpg`;
+                    imagesScrollHTML += `<img src="${imgPath}" alt="${data.prefix} ${j}">`;
+                 }
+                contentHTML = `<div class="image-gallery-scrolled" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">${imagesScrollHTML}</div>`;
+            }
+
+            return `
+                <section id="${data.anchor}" class="scrolled-content" style="background-color: ${isBlessing ? 'var(--secondary-color)' : 'white'};">
+                    <p class="screen-text">${data.text}</p>
+                    <h2 class="royal-title">${data.title}</h2>
+                    ${contentHTML}
+                </section>
+            `;
+        }
+
+        // --- ניהול מסכים ---
+        function updateScreen(animate = true) {
+            document.querySelectorAll('.app-screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+            
+            const current = document.getElementById(`screen-${currentScreen}`);
+            if (current) {
+                current.style.display = 'flex';
+                document.body.style.overflowY = 'hidden'; 
+            }
+            
+            // עדכון ה-Top Bar
+            const topBar = document.getElementById('top-bar');
+            if (currentScreen > 1 && currentScreen <= totalNarrativeScreens) {
+                topBar.style.display = 'flex';
+                document.getElementById('screen-title').textContent = screensData[currentScreen - 1].title;
+                topBar.querySelector('button:first-child').style.visibility = (currentScreen > 2) ? 'visible' : 'hidden'; // הסתר כפתור הקודם במסך 2
+            } else {
+                 topBar.style.display = 'none';
+            }
+            
+            if (currentScreen >= 2 && currentScreen <= totalNarrativeScreens) {
+                initializeCarousel(`carousel-${currentScreen}`, animate);
+            }
+        }
+
+        function nextScreen() {
+            if (currentScreen < totalNarrativeScreens) {
+                currentScreen++;
+                updateScreen();
+            } else if (currentScreen === totalNarrativeScreens) {
+                showFinalContent();
+            }
+        }
+
+        function prevScreen() {
+            if (currentScreen > 1) {
+                currentScreen--;
+                updateScreen();
+            } 
+        }
+
+        function showFinalContent() {
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('top-bar').style.display = 'none';
+            document.getElementById('final-content').style.display = 'block';
+            document.body.style.overflowY = 'scroll'; 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            toggleNavMenu(true); 
+        }
+        
+        function toggleNavMenu(forceOpen = false) {
+            const navMenu = document.getElementById('nav-menu');
+            if (navMenu.style.display === 'flex' && !forceOpen) {
+                navMenu.style.display = 'none';
+                document.body.style.overflowY = 'scroll'; 
+            } else {
+                navMenu.style.display = 'flex';
+                document.body.style.overflowY = 'hidden'; 
+            }
+        }
+        
+        window.navigateToScreen = function(screenNum) {
+            const anchorId = screensData[screenNum - 1].anchor;
+            const targetElement = document.getElementById(anchorId);
+            if (targetElement) {
+                toggleNavMenu();
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // --- לוגיקת קרוסלה פשוטה ---
+        const carousels = {};
+
+        function initializeCarousel(carouselId) {
+            const mainContainer = document.getElementById(`${carouselId}-main`);
+            const screenNum = parseInt(carouselId.split('-')[1]);
+            
+            if (!mainContainer) return;
+
+            const screenData = screensData[screenNum - 1];
+            const isBlessing = screenData.isBlessing;
+            const items = isBlessing ? blessingData : Array.from({ length: screenData.count }, (_, j) => ({ 
+                img: `${screenData.prefix}${j + 1}`, // בלי סיומת – נטפל בה בטעינה
+                alt: `${screenData.prefix} ${j + 1}` 
+            }));
+
+            if (carousels[carouselId]) {
+                carousels[carouselId].currentIndex = 0;
+            } else {
+                carousels[carouselId] = {
+                    id: carouselId,
+                    mainContainer: mainContainer,
+                    items: items,
+                    currentIndex: 0,
+                    total: items.length,
+                    isBlessing: isBlessing
+                };
+            }
+            
+            const carousel = carousels[carouselId];
+            
+            // יצירת thumbnails
+            createThumbnails(carouselId, carousel);
+            
+            // הגדרת event listeners על האובייקט המרכזי
+            setupMainItemEvents(carouselId, carousel);
+            
+            // עדכון תצוגה ראשונית
+            updateCarouselDisplay(carouselId);
+        }
+        
+        // יצירת שורת thumbnails
+        function createThumbnails(carouselId, carousel) {
+            const screenNum = parseInt(carouselId.split('-')[1]);
+            const thumbnailsContainer = document.getElementById(`thumbnails-${screenNum}`);
+            if (!thumbnailsContainer) return;
+            
+            thumbnailsContainer.innerHTML = '';
+            
+            carousel.items.forEach((item, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = `thumbnail-item ${index === 0 ? 'active' : ''}`;
+                thumb.setAttribute('data-thumb-index', index);
+                
+                if (carousel.isBlessing) {
+                    thumb.className += ' blessing-thumb';
+                    const dateText = item.date.split(' - ')[0]; // רק התאריך
+                    thumb.textContent = dateText;
+                } else {
+                    const screenData = screensData[screenNum - 1];
+                    const imgBase = `${screenData.prefix}${index + 1}`;
+                    const img = document.createElement('img');
+                    img.src = `images/${imgBase}.jpg`;
+                    img.setAttribute('data-alt-src', `images/${imgBase}.png`);
+                    img.alt = `${screenData.prefix} ${index + 1}`;
+                    img.onerror = function() {
+                        this.onerror = null;
+                        this.src = this.getAttribute('data-alt-src');
+                    };
+                    thumb.appendChild(img);
+                }
+                
+                thumb.addEventListener('click', () => {
+                    setCurrentSlide(carouselId, index);
+                });
+                
+                thumbnailsContainer.appendChild(thumb);
+            });
+        }
+        
+        // הגדרת event listeners על האובייקט המרכזי
+        function setupMainItemEvents(carouselId, carousel) {
+            const mainItems = carousel.mainContainer.querySelectorAll('.carousel-main-item');
+            mainItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    window.openModal(carouselId, index);
+                });
+            });
+        }
+        
+        // עדכון תצוגת הקרוסלה
+        function updateCarouselDisplay(carouselId) {
+            const carousel = carousels[carouselId];
+            if (!carousel) return;
+            
+            // הסתרת כל הפריטים והצגת הפריט הנוכחי בלבד
+            const mainItems = carousel.mainContainer.querySelectorAll('.carousel-main-item');
+            mainItems.forEach((item, index) => {
+                if (index === carousel.currentIndex) {
+                    item.style.display = 'block';
+                    item.classList.add('active');
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('active');
+                }
+            });
+            
+            // עדכון thumbnails
+            const screenNum = parseInt(carouselId.split('-')[1]);
+            const thumbnails = document.querySelectorAll(`#thumbnails-${screenNum} .thumbnail-item`);
+            thumbnails.forEach((thumb, index) => {
+                if (index === carousel.currentIndex) {
+                    thumb.classList.add('active');
+                    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+        
+        // פונקציות ניווט
+        window.carouselPrev = function(carouselId) {
+            const carousel = carousels[carouselId];
+            if (!carousel) return;
+            
+            let newIndex = carousel.currentIndex - 1;
+            if (newIndex < 0) {
+                newIndex = carousel.total - 1;
+            }
+            setCurrentSlide(carouselId, newIndex);
+        };
+        
+        window.carouselNext = function(carouselId) {
+            const carousel = carousels[carouselId];
+            if (!carousel) return;
+            
+            let newIndex = carousel.currentIndex + 1;
+            if (newIndex >= carousel.total) {
+                newIndex = 0;
+            }
+            setCurrentSlide(carouselId, newIndex);
+        };
+        
+        window.setCurrentSlide = function(carouselId, index) {
+            const carousel = carousels[carouselId];
+            if (!carousel) return;
+
+            // בדיקת גבולות (מעבר מעגלי)
+            if (index < 0) {
+                index = carousel.total - 1;
+            } else if (index >= carousel.total) {
+                index = 0;
+            }
+
+            carousel.currentIndex = index;
+            updateCarouselDisplay(carouselId);
+        }
+
+        // --- ניהול Modal (Lightbox) ---
+        
+        window.openModal = function(carouselId, index) {
+            const carousel = carousels[carouselId];
+            if (!carousel) return;
+            
+            modalContent = { carouselId: carouselId, index: index, total: carousel.total };
+            
+            const contentWrapper = document.getElementById('modal-content-wrapper');
+            contentWrapper.innerHTML = ''; 
+            
+            if (carousel.isBlessing) {
+                // תוכן הברכה במודל (מציג את הטקסט המלא)
+                const blessingDataCurrent = window.blessingData[index];
+                const blessingModalHTML = `
+                    <div class="modal-blessing">
+                        <span class="blessing-date" style="font-size: 1.5rem;">${blessingDataCurrent.date}</span>
+                        <div class="blessing-text" style="font-size: 1.1rem; line-height: 1.8; white-space: pre-wrap;">${blessingDataCurrent.text}</div>
+                    </div>
+                `;
+                contentWrapper.insertAdjacentHTML('beforeend', blessingModalHTML);
+                contentWrapper.style.backgroundColor = 'white';
+                
+            } else {
+                // תוכן תמונה במודל – תצוגה מלאה עם תמיכה ב-JPG/PNG
+                const screenNum = parseInt(carouselId.split('-')[1]);
+                const screenData = screensData[screenNum - 1];
+                const imgBase = `${screenData.prefix}${index + 1}`;
+                
+                const img = document.createElement('img');
+                img.src = `images/${imgBase}.jpg`;
+                img.setAttribute('data-alt-src', `images/${imgBase}.png`);
+                img.className = 'modal-image';
+                img.alt = `${screenData.prefix} ${index + 1}`;
+                img.onerror = function() {
+                    this.onerror = null;
+                    const altSrc = this.getAttribute('data-alt-src');
+                    if (altSrc) {
+                        this.src = altSrc;
+                    }
+                };
+                
+                contentWrapper.appendChild(img);
+                contentWrapper.style.backgroundColor = 'black';
+            }
+            
+            document.getElementById('myModal').style.display = 'flex';
+        }
+
+        window.closeModal = function() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+        
+        window.modalPrev = function() {
+            let newIndex = (modalContent.index - 1 + modalContent.total) % modalContent.total;
+            setCurrentSlide(modalContent.carouselId, newIndex);
+            openModal(modalContent.carouselId, newIndex);
+        }
+        
+        window.modalNext = function() {
+            let newIndex = (modalContent.index + 1) % modalContent.total;
+            setCurrentSlide(modalContent.carouselId, newIndex);
+            openModal(modalContent.carouselId, newIndex);
+        }
+
+        // --- אתחול סופי ---
+        window.onload = () => {
+             buildNarrativeScreens();
+             updateScreen(false);
+             window.addEventListener('resize', () => {
+                 if(currentScreen >= 2 && currentScreen <= totalNarrativeScreens) {
+                     updateCarouselDisplay(`carousel-${currentScreen}`);
+                 }
+             });
+        };
+        
+    </script>
+</body>
+</html>
