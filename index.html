@@ -39,7 +39,7 @@
         }
         
         h1 { font-size: 5rem; text-align: center; margin: 50px 0; }
-        .royal-title { font-size: 3rem; text-align: center; margin: 30px 0; }
+        .royal-title { font-size: 3rem; text-align: center; margin: 0 0 8px 0; /* אין רווח מעל הכותרת */ }
         
         /* --- מבנה המסכים --- */
         .app-screen {
@@ -54,6 +54,8 @@
             transition: opacity var(--transition-time);
             box-sizing: border-box;
             justify-content: flex-start; /* מתחיל מלמעלה */
+            overflow-y: auto; /* מאפשר גלילה במסך עצמו */
+            overflow-x: hidden;
         }
         
         #screen-1 { display: flex; } 
@@ -86,14 +88,21 @@
         .screen-text {
             max-width: 800px;
             font-size: 2.1rem; /* הוכפל הגודל למסכי הנרטיב */
-            line-height: 1.6;
-            margin: 10px 0 14px 0;
+            line-height: 1.4; /* הקטנתי את line-height */
+            margin: 4px 0 0 0; /* אין רווח מתחת לטקסט */
             font-weight: 700; /* מודגש */
             white-space: pre-line; /* ENTER בקוד = שורה חדשה */
+            word-wrap: break-word; /* שבירת מילים ארוכות */
+            overflow-wrap: break-word;
         }
 
         .screen-buttons {
-            margin-top: 6px;
+            margin-top: 8px;
+            margin-bottom: 20px; /* רווח תחתון כדי שהכפתורים לא יידחפו */
+            flex-shrink: 0; /* מונע מהכפתורים להתכווץ */
+            padding-bottom: 10px; /* רווח נוסף למקרה של גלילה */
+            display: flex;
+            justify-content: center; /* מרכז את הכפתור היחיד */
         }
 
         .screen-buttons button {
@@ -113,7 +122,7 @@
         .carousel-wrapper {
             width: 100%;
             max-width: 1000px;
-            margin: 15px auto;
+            margin: 8px auto; /* רווח קטן יותר */
             position: relative;
             display: flex;
             flex-direction: column;
@@ -166,6 +175,93 @@
             .carousel-main-content img {
                 max-height: 35vh;
                 max-width: 90vw;
+            }
+        }
+        
+        /* מדיה קוורי למסכים קטנים - טלפונים */
+        @media (max-width: 480px) {
+            h1 { 
+                font-size: 2.5rem; 
+                margin: 30px 0 20px 0; 
+            }
+            
+            .royal-title { 
+                font-size: 1.8rem; 
+                margin: 0 0 6px 0; /* אין רווח מעל */
+            }
+            
+            .screen-text {
+                font-size: 1.2rem; /* קטן משמעותית לטלפון */
+                line-height: 1.4;
+                margin: 6px 0 0 0; /* אין רווח מתחת */
+                padding: 0 10px; /* רווח צדדי */
+            }
+            
+            .app-screen {
+                padding: 60px 3% 20px 3%; /* פחות padding */
+                min-height: 100vh;
+                max-height: none; /* מאפשר גלילה */
+            }
+            
+            .screen-buttons {
+                margin-top: 8px;
+                margin-bottom: 20px;
+            }
+            
+            .screen-buttons button {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+                margin: 6px;
+            }
+            
+            .carousel-wrapper {
+                margin: 6px auto; /* רווח קטן יותר */
+            }
+            
+            .carousel-main-content {
+                height: 30vh;
+                max-height: 30vh;
+            }
+            
+            .carousel-main-content img {
+                max-height: 30vh;
+                max-width: 95vw;
+            }
+            
+            .carousel-main-blessing {
+                max-height: 35vh;
+                padding: 16px;
+            }
+            
+            .carousel-main-blessing .blessing-date {
+                font-size: 1rem;
+            }
+            
+            .carousel-main-blessing .blessing-text {
+                font-size: 0.85rem;
+                max-height: 25vh;
+            }
+        }
+        
+        /* מדיה קוורי לטלפונים בינוניים */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .screen-text {
+                font-size: 1.5rem;
+                line-height: 1.4;
+                margin: 6px 0 0 0; /* אין רווח מתחת */
+            }
+            
+            .royal-title {
+                font-size: 2.2rem;
+                margin: 0 0 6px 0; /* אין רווח מעל */
+            }
+            
+            h1 {
+                font-size: 3.5rem;
+            }
+            
+            .carousel-wrapper {
+                margin: 6px auto; /* רווח קטן יותר */
             }
         }
         
@@ -336,11 +432,11 @@
             .screen-text {
                 font-size: 0.95rem;
                 line-height: 1.4;
-                margin: 6px 0 10px 0;
+                margin: 6px 0 0 0; /* אין רווח מתחת */
             }
             .royal-title {
                 font-size: 2.4rem;
-                margin: 18px 0;
+                margin: 0 0 18px 0; /* אין רווח מעל */
             }
             .carousel-main-content {
                 height: 38vh;
@@ -426,15 +522,18 @@
         #modal-next { right: 0; border-radius: 5px 0 0 5px; }
 
         /* --- מסך ניווט (המבורגר) --- */
-        #nav-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--secondary-color); z-index: 2500; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-top: 60px; }
+        #nav-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--secondary-color); z-index: 2500; display: none; flex-direction: column; justify-content: flex-start; align-items: center; text-align: center; padding-top: 20px; padding-bottom: 40px; overflow-y: auto; }
+        #nav-menu .royal-title {
+            margin: 0 0 20px 0; /* אין רווח מעל, רק מתחת */
+        }
         .final-nav-list { 
             list-style: none; 
             padding: 0; 
-            margin: 40px auto; 
+            margin: 0 auto 20px auto; 
             max-width: 800px; 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); /* שני כפתורים בכל שורה */
-            gap: 20px; 
+            gap: 10px; 
         }
         .final-nav-list li { 
             margin: 0; 
@@ -443,10 +542,13 @@
             text-decoration: none; 
             font-size: 1.5rem; 
             padding: 15px 20px; 
-            border-radius: 10px; 
+            border-radius: 50px; /* pill shape */
             display: block; 
             transition: background-color 0.2s; 
             text-align: center;
+            background-color: white;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
         }
         .final-nav-list a:hover { 
             background-color: var(--primary-color); 
@@ -477,7 +579,7 @@
     </div>
     
     <div id="nav-menu">
-        <h2 class="royal-title">מבט על - ניווט מהיר</h2>
+        <h2 class="royal-title">מבט על</h2>
         <ul id="nav-list" class="final-nav-list"></ul>
     </div>
     
@@ -558,10 +660,6 @@
                 const screenHTML = createScreenHTML(data, i);
                 container.insertAdjacentHTML('beforeend', screenHTML);
                 
-                // יצירת תוכן הגלילה (למצב סופי)
-                const scrollHTML = createScrollContentHTML(data);
-                finalContent.insertAdjacentHTML('beforeend', scrollHTML);
-                
                 // יצירת כפתור ניווט מהיר
                  const navItem = document.createElement('li');
                  const navLink = document.createElement('a');
@@ -627,7 +725,6 @@
                         <div id="thumbnails-${screenNum}" class="thumbnails"></div>
                     </div>
                     <div class="screen-buttons">
-                        <button onclick="prevScreen()">הקודם</button>
                         <button onclick="${screenNum === totalNarrativeScreens ? 'showFinalContent()' : 'nextScreen()'}">${data.nextBtn}</button>
                     </div>
                 </div>
@@ -714,10 +811,10 @@
         function showFinalContent() {
             document.getElementById('app-container').style.display = 'none';
             document.getElementById('top-bar').style.display = 'none';
-            document.getElementById('final-content').style.display = 'block';
-            document.body.style.overflowY = 'scroll'; 
+            document.getElementById('final-content').style.display = 'none';
+            document.getElementById('nav-menu').style.display = 'flex';
+            document.body.style.overflowY = 'hidden'; 
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            toggleNavMenu(true); 
         }
         
         function toggleNavMenu(forceOpen = false) {
@@ -732,12 +829,14 @@
         }
         
         window.navigateToScreen = function(screenNum) {
-            const anchorId = screensData[screenNum - 1].anchor;
-            const targetElement = document.getElementById(anchorId);
-            if (targetElement) {
-                toggleNavMenu();
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            // הסתרת תפריט הניווט
+            document.getElementById('nav-menu').style.display = 'none';
+            // הצגת המסכים
+            document.getElementById('app-container').style.display = 'block';
+            // עדכון המסך הנוכחי
+            currentScreen = screenNum;
+            // עדכון התצוגה
+            updateScreen();
         }
 
         // --- לוגיקת קרוסלה פשוטה ---
