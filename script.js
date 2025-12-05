@@ -49,16 +49,44 @@ function playScreenAudio(screenNum) {
     }
     
     // יצירת אובייקט אודיו חדש
-    const audio = new Audio(audioFiles[audioNum]);
+    const audioPath = audioFiles[audioNum];
+    const audio = new Audio(audioPath);
     audio.loop = true;
     audio.volume = 0.7;
     
-    // ניסיון לנגן
-    audio.play().catch(error => {
-        console.log('לא ניתן לנגן את המוזיקה:', error);
+    // טיפול בשגיאות טעינה
+    audio.addEventListener('error', function(e) {
+        console.error('שגיאה בטעינת האודיו:', audioPath, e);
+        console.error('פרטי השגיאה:', audio.error);
     });
     
-    currentAudio = audio;
+    // טיפול בהצלחת טעינה
+    audio.addEventListener('canplaythrough', function() {
+        console.log('אודיו נטען בהצלחה:', audioPath);
+    });
+    
+    // ניסיון לנגן
+    const playPromise = audio.play();
+    
+    if (playPromise !== undefined) {
+        playPromise
+            .then(() => {
+                console.log('מוזיקה מתנגנת:', audioPath);
+                currentAudio = audio;
+            })
+            .catch(error => {
+                console.error('לא ניתן לנגן את המוזיקה:', audioPath, error);
+                // נסה שוב אחרי טעינה מלאה
+                audio.addEventListener('canplay', function() {
+                    audio.play().catch(err => {
+                        console.error('נכשל גם בנסיון השני:', err);
+                    });
+                }, { once: true });
+            });
+    } else {
+        // גיבוי לדפדפנים ישנים
+        currentAudio = audio;
+    }
 }
 
 // פונקציה להתחלת החוויה (לחיצה על הלב)
@@ -71,7 +99,10 @@ function startExperience() {
     body.classList.remove('splash-active');
     
     // הפעלת המוזיקה של מסך 1
-    playScreenAudio(1);
+    // משתמשים ב-setTimeout קצר כדי לוודא שהאינטראקציה נרשמה
+    setTimeout(() => {
+        playScreenAudio(1);
+    }, 100);
 }
 
 // הפיכת startExperience לנגיש גלובלית
