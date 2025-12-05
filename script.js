@@ -2,6 +2,81 @@ let currentScreen = 1;
 const totalNarrativeScreens = 7;
 let modalContent = {}; 
 
+// --- ניהול אודיו ---
+let currentAudio = null;
+const audioFiles = {
+    1: 'audio/1.mp3',
+    2: 'audio/2.mp3',
+    3: 'audio/3.mp3',
+    4: 'audio/4.mp3',
+    5: 'audio/5.mp3',
+    6: 'audio/6.mp3'
+};
+
+// פונקציה שמחזירה את מספר השיר לפי מספר המסך
+function getAudioForScreen(screenNum) {
+    if (screenNum === 1) return 1;
+    if (screenNum === 2) return 2; // מתנאוריה
+    if (screenNum === 3) return 3; // פומה
+    if (screenNum === 4) return 4; // הלל
+    if (screenNum === 5) return 5; // ארייה
+    if (screenNum === 6) return 6; // אור
+    if (screenNum === 7) return 6; // כתובים - ממשיך עם שיר 6
+    // מסך 8 (מבט על) - ממשיך עם שיר 6, לא צריך להחזיר כלום
+    return null;
+}
+
+// פונקציה להפעלת מוזיקה למסך
+function playScreenAudio(screenNum) {
+    const audioNum = getAudioForScreen(screenNum);
+    
+    // אם אין שיר למסך הזה (מבט על) - לא עושים כלום, השיר ממשיך
+    if (audioNum === null) {
+        return;
+    }
+    
+    // אם זה מסך 7 (כתובים) - לא עוצרים את השיר, רק ממשיכים
+    if (screenNum === 7) {
+        // לא עוצרים, השיר ממשיך להתנגן
+        return;
+    }
+    
+    // עצירת המוזיקה הנוכחית (רק אם לא זה מסך 7)
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+    }
+    
+    // יצירת אובייקט אודיו חדש
+    const audio = new Audio(audioFiles[audioNum]);
+    audio.loop = true;
+    audio.volume = 0.7;
+    
+    // ניסיון לנגן
+    audio.play().catch(error => {
+        console.log('לא ניתן לנגן את המוזיקה:', error);
+    });
+    
+    currentAudio = audio;
+}
+
+// פונקציה להתחלת החוויה (לחיצה על הלב)
+function startExperience() {
+    const overlay = document.getElementById('splash-overlay');
+    const body = document.body;
+    
+    // הסתרת האוברליי
+    overlay.classList.add('hidden');
+    body.classList.remove('splash-active');
+    
+    // הפעלת המוזיקה של מסך 1
+    playScreenAudio(1);
+}
+
+// הפיכת startExperience לנגיש גלובלית
+window.startExperience = startExperience;
+
 // הפיכת blessingData לנגיש ב-window עבור openModal
 window.blessingData = blessingData;
 
@@ -134,6 +209,9 @@ function updateScreen(animate = true) {
         current.style.display = 'flex';
         document.body.style.overflowY = 'hidden'; 
     }
+    
+    // הפעלת המוזיקה של המסך הנוכחי
+    playScreenAudio(currentScreen);
     
     // עדכון ה-Top Bar
     const topBar = document.getElementById('top-bar');
@@ -422,12 +500,19 @@ window.modalNext = function() {
 
 // --- אתחול סופי ---
 window.onload = () => {
-     buildNarrativeScreens();
-     updateScreen(false);
-     window.addEventListener('resize', () => {
-         if(currentScreen >= 2 && currentScreen <= totalNarrativeScreens) {
-             updateCarouselDisplay(`carousel-${currentScreen}`);
-         }
-     });
+    // חסימת אינטראקציה עד ללחיצה על הלב
+    document.body.classList.add('splash-active');
+    
+    buildNarrativeScreens();
+    updateScreen(false);
+    
+    // לא מפעילים מוזיקה עד ללחיצה על הלב
+    // המוזיקה תופעל ב-startExperience()
+    
+    window.addEventListener('resize', () => {
+        if(currentScreen >= 2 && currentScreen <= totalNarrativeScreens) {
+            updateCarouselDisplay(`carousel-${currentScreen}`);
+        }
+    });
 };
 

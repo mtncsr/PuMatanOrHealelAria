@@ -557,3 +557,68 @@ h1 { font-size: 5rem; text-align: center; margin: 50px 0; }
 .blessing-card-scrolled .blessing-date { font-size: 1.35rem; font-weight: 700; color: var(--primary-color); margin-bottom: 10px; }
 .blessing-card-scrolled .blessing-text { font-size: 1.05rem; line-height: 1.8; font-weight: 400; white-space: pre-line; }
 
+/* --- מסך פתיחה עם לב מהבהב --- */
+.splash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(248, 231, 228, 0.98); /* צבע רקע דומה ל-secondary-color */
+    z-index: 10000; /* הכי גבוה - מעל הכל */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+}
+
+.splash-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.heart-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 5rem;
+    color: var(--primary-color);
+    padding: 0;
+    animation: heartbeat 1.2s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+.heart-button:hover {
+    transform: scale(1.1);
+}
+
+.heart-button:active {
+    transform: scale(0.95);
+}
+
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.15);
+    }
+    50% {
+        transform: scale(1);
+    }
+    75% {
+        transform: scale(1.1);
+    }
+}
+
+/* חסימת אינטראקציה כשהאוברליי פעיל */
+body.splash-active {
+    overflow: hidden;
+    pointer-events: none;
+}
+
+body.splash-active #splash-overlay {
+    pointer-events: auto;
+}
+
