@@ -19,3 +19,6 @@ const screensData = [
     { id: 'screen-7', title: 'הכתובים', text: 'כתבתי לך, כותב לך, אכתוב לך. <br> בסופו של יום אני איש של מילים. <br> כאן יש שמונה ברכות מתקופות שונות. <br> שמונה כולל ברכת ההווה.', nextBtn: 'למבט על', isBlessing: true, anchor: 'anchor-7' }
 ];
 
+
+
+
