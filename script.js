@@ -41,11 +41,22 @@ function playScreenAudio(screenNum) {
         return;
     }
     
-    // עצירת המוזיקה הנוכחית (רק אם לא זה מסך 7)
+    // עצירת המוזיקה הנוכחית - וידוא שהשיר נעצר לפני שמתחילים שיר חדש
     if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        currentAudio = null;
+        // שמירה על reference לשיר הישן
+        const oldAudio = currentAudio;
+        currentAudio = null; // איפוס מיד כדי למנוע race conditions
+        
+        // עצירה סינכרונית
+        try {
+            oldAudio.pause();
+            oldAudio.currentTime = 0;
+            // ניתוק event listeners כדי למנוע memory leaks
+            oldAudio.src = '';
+            oldAudio.load();
+        } catch (e) {
+            console.warn('שגיאה בעצירת שיר קודם:', e);
+        }
     }
     
     // יצירת אובייקט אודיו חדש
@@ -54,10 +65,17 @@ function playScreenAudio(screenNum) {
     audio.loop = true;
     audio.volume = 0.7;
     
+    // עדכון currentAudio מיד (לפני שהשיר מתחיל) כדי למנוע race conditions
+    currentAudio = audio;
+    
     // טיפול בשגיאות טעינה
     audio.addEventListener('error', function(e) {
         console.error('שגיאה בטעינת האודיו:', audioPath, e);
         console.error('פרטי השגיאה:', audio.error);
+        // אם יש שגיאה, איפוס currentAudio רק אם זה עדיין השיר הנוכחי
+        if (currentAudio === audio) {
+            currentAudio = null;
+        }
     });
     
     // טיפול בהצלחת טעינה
@@ -72,15 +90,34 @@ function playScreenAudio(screenNum) {
         playPromise
             .then(() => {
                 console.log('מוזיקה מתנגנת:', audioPath);
-                currentAudio = audio;
+                // וידוא ש-currentAudio עדיין מצביע לשיר הזה (אם לא, זה אומר שהשיר השתנה)
+                if (currentAudio === audio) {
+                    // הכל תקין
+                } else {
+                    // השיר השתנה, צריך לעצור את השיר הזה
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
             })
             .catch(error => {
                 console.error('לא ניתן לנגן את המוזיקה:', audioPath, error);
+                // אם זה לא השיר הנוכחי, לא צריך לנסות שוב
+                if (currentAudio !== audio) {
+                    return;
+                }
                 // נסה שוב אחרי טעינה מלאה
                 audio.addEventListener('canplay', function() {
-                    audio.play().catch(err => {
-                        console.error('נכשל גם בנסיון השני:', err);
-                    });
+                    // בדיקה נוספת שהשיר עדיין הנוכחי
+                    if (currentAudio === audio) {
+                        audio.play().then(() => {
+                            console.log('מוזיקה מתנגנת לאחר אינטראקציה:', audioPath);
+                        }).catch(err => {
+                            console.error('נכשל גם בנסיון השני:', err);
+                            if (currentAudio === audio) {
+                                currentAudio = null;
+                            }
+                        });
+                    }
                 }, { once: true });
             });
     } else {
