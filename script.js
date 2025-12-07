@@ -486,8 +486,10 @@ window.openModal = function(carouselId, index) {
         `;
         contentWrapper.insertAdjacentHTML('beforeend', blessingModalHTML);
         contentWrapper.style.backgroundColor = 'white';
+        contentWrapper.classList.add('modal-blessing-wrapper'); // הוספת class מיוחד לברכות
         
     } else {
+        contentWrapper.classList.remove('modal-blessing-wrapper'); // הסרת class אם זה תמונה
         // תוכן תמונה במודל – תצוגה מלאה עם תמיכה ב-JPG/PNG
         const screenNum = parseInt(carouselId.split('-')[1]);
         const screenData = screensData[screenNum - 1];

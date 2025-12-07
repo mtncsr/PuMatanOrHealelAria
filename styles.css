@@ -470,11 +470,18 @@ h1 { font-size: 5rem; text-align: center; margin: 50px 0; }
     overflow: auto; 
     display: flex; 
     justify-content: center; 
-    align-items: center; 
+    align-items: center; /* ברירת מחדל - ממורכז (לתמונות) */
     background-color: white; 
     border-radius: 10px; 
     margin: auto;
 }
+
+/* כשיש ברכה - מתחיל מלמעלה */
+.modal-content-wrapper.modal-blessing-wrapper {
+    align-items: flex-start; /* מתחיל מלמעלה */
+    padding: 20px 0; /* רווח מלמעלה ומלמטה */
+}
+
 .modal-image { 
     max-width: 95vw; 
     max-height: 95vh; 
@@ -485,9 +492,10 @@ h1 { font-size: 5rem; text-align: center; margin: 50px 0; }
     transition: transform 0.3s ease;
 }
 .modal-blessing { 
-    padding: 32px; 
+    padding: 20px 32px; /* רווח מלמעלה ומלמטה + מהצדדים */
     color: var(--text-color); 
     max-width: 900px; 
+    width: 100%; /* תופס את כל הרוחב */
     text-align: right; 
     white-space: pre-wrap; 
 }
