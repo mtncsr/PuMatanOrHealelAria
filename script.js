@@ -481,7 +481,7 @@ window.openModal = function(carouselId, index) {
         const blessingModalHTML = `
             <div class="modal-blessing">
                 <span class="blessing-date" style="font-size: 1.5rem;">${blessingDataCurrent.date}</span>
-                <div class="blessing-text" style="font-size: 1.1rem; line-height: 1.8; white-space: pre-wrap;">${blessingDataCurrent.text}</div>
+                <div class="blessing-text" style="font-size: 1.1rem; line-height: 1.8; white-space: pre-line;">${blessingDataCurrent.text}</div>
             </div>
         `;
         contentWrapper.insertAdjacentHTML('beforeend', blessingModalHTML);
